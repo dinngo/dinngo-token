@@ -181,35 +181,32 @@ contract Pausable is Ownable {
 }
 
 contract Whitelist is Ownable {
-    event Allow(address indexed user);
-    event Disallow(address indexed user);
+    event AddedToWhitelist(address indexed user);
+    event RemovedFromWhitelist(address indexed user);
 
     mapping (address => bool) internal _data;
 
-    modifier whenAllowed(address _user) {
+    modifier whenWhitelisted(address _user) {
         require(_data[_user]);
         _;
     }
 
-    modifier whenNotAllowed(address _user) {
+    modifier whenNotWhitelisted(address _user) {
         require(_data[_user] != true);
         _;
     }
 
-    // change name
-    function allow(address _user) public onlyOwner whenNotAllowed(_user) {
+    function addToWhitelist(address _user) public onlyOwner whenNotWhitelisted(_user) {
         _data[_user] = true;
-        emit Allow(_user);
+        emit AddedToWhitelist(_user);
     }
 
-    // change name
-    function disallow(address _user) public onlyOwner whenAllowed(_user) {
+    function removeFromWhitelist(address _user) public onlyOwner whenWhitelisted(_user) {
         _data[_user] = false;
-        emit Disallow(_user);
+        emit RemovedFromWhitelist(_user);
     }
 
-    // change name
-    function isAllowed(address _user) public view returns (bool) {
+    function isWhitelisted(address _user) public view returns (bool) {
         return _data[_user] == true;
     }
 }
@@ -659,7 +656,7 @@ contract WhitelistedCrowdsale is Whitelist, Crowdsale {
      * @param _beneficiary Token beneficiary
      * @param _weiAmount Amount of wei contributed
      */
-    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal whenAllowed(_beneficiary) {
+    function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal whenWhitelisted(_beneficiary) {
         super._preValidatePurchase(_beneficiary, _weiAmount);
     }
 
@@ -757,13 +754,13 @@ contract CustomCrowdsale is
     }
 
     function allow(address _user, uint256 _time) public onlyOwner {
-        allow(_user);
+        addToWhitelist(_user);
         token.setTimelock(_user, _time);
     }
 
     function allowMany(address[] _users, uint256 _time) public onlyOwner {
         for (uint256 i = 0; i < _users.length; i++) {
-            allow(_users[i]);
+            addToWhitelist(_users[i]);
             token.setTimelock(_users[i], _time);
         }
     }
