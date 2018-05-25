@@ -422,16 +422,14 @@ contract StandardToken is ERC20, BasicToken {
 // Custom Token section
 ///////////////////////
 
-contract TimelockToken is Timelock, StandardToken {
-
-    address internal whiteAddress;
+contract TimelockToken is Whitelist, Timelock, StandardToken {
 
     function TimelockToken(address _address) public {
-        whiteAddress = _address;
+        addToWhitelist(_address);
     }
 
     modifier whenTransferrable() {
-        if (msg.sender != whiteAddress)
+        if (isWhitelisted(msg.sender) != true)
             require(isUnlocked(msg.sender));
         _;
     }
