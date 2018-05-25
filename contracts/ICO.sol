@@ -731,8 +731,9 @@ contract CustomCrowdsale is
         Pausable(false)
         Crowdsale(_rate, _fundsWallet)
     {
-        token = new CustomToken(_tokenWallet);
         tokenWallet = _tokenWallet;
+        token = new CustomToken(_tokenWallet);
+        token.addToWhitelist(address(this));
         minCap = 0.1 ether;
     }
 
