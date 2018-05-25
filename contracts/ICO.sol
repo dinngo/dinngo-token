@@ -764,6 +764,11 @@ contract CustomCrowdsale is
         }
     }
 
+    function presale(address _beneficiary, uint256 _tokenAmount, uint256 _time) public onlyOwner {
+        _deliverTokens(_beneficiary, _tokenAmount);
+        token.setTimelock(_beneficiary, _time);
+    }
+
     /**
      * @dev Source of tokens. Override this method to modify the way in which the crowdsale ultimately gets and sends its tokens.
      * @param _beneficiary Address performing the token purchase
