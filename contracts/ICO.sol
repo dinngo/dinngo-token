@@ -94,7 +94,6 @@ contract Ownable {
 }
 
 
-
 /**
  * @title Timelock
  * @dev Manage the time lock of token
@@ -752,12 +751,12 @@ contract CustomCrowdsale is
         wallet = _wallet;
     }
 
-    function allow(address _user, uint256 _time) public onlyOwner {
+    function addToWhitelistWithTime(address _user, uint256 _time) public onlyOwner {
         addToWhitelist(_user);
         token.setTimelock(_user, _time);
     }
 
-    function allowMany(address[] _users, uint256 _time) public onlyOwner {
+    function allowManyToWhitelistWithTime(address[] _users, uint256 _time) public onlyOwner {
         for (uint256 i = 0; i < _users.length; i++) {
             addToWhitelist(_users[i]);
             token.setTimelock(_users[i], _time);
