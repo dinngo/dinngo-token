@@ -459,12 +459,19 @@ contract StandardToken is ERC20, BasicToken {
 // Custom Token section
 ///////////////////////
 
+/**
+ * @title TimelockToken
+ * @dev Manage the transfer ability of address with whitelist and timelock
+ */
 contract TimelockToken is Whitelist, Timelock, StandardToken {
 
     function TimelockToken(address _address) public {
         addToWhitelist(_address);
     }
 
+    /**
+     * @dev Check if the sender is unlocked if the address is not whitelisted
+     */
     modifier whenTransferrable() {
         if (isWhitelisted(msg.sender) != true)
             require(isUnlocked(msg.sender));
