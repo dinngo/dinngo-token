@@ -487,6 +487,7 @@ contract TimelockToken is Whitelist, Timelock, StandardToken {
     }
 }
 
+
 /**
  * @title Pausable token
  * @dev StandardToken modified with pausable transfers.
@@ -503,9 +504,13 @@ contract PausableToken is Pausable, StandardToken {
 }
 
 
+/**
+ * @title CustomToken
+ * @dev The customized token contract
+ */
 contract CustomToken is TimelockToken, PausableToken {
-    string constant public name = "Token";
-    string constant public symbol = "TOK";
+    string constant public name = "Dinngo";
+    string constant public symbol = "DGO";
     uint8 constant public decimals = 18;
     string constant public version = "1.0";
 
