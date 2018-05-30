@@ -110,20 +110,38 @@ contract Timelock is Ownable {
         finalTime = 0;
     }
 
+    /**
+     * @dev Record the finalized time as the reference of time lock.
+     */
     function finalize() public {
+        require(finalTime == 0);
         finalTime = now;
     }
 
+    /**
+     * @dev Return the time to be locked of the given address
+     * @param _user The address of the user to be queried
+     */
     function getTimelock(address _user) public view returns (uint256) {
         require(lockUser[_user]);
         return lockTime[_user];
     }
 
+    /**
+     * @dev Set the given address as locked and assign the time
+     * @param _user The address to be locked
+     * @param _time The time length to be locked
+     */
     function setTimelock(address _user, uint256 _time) public onlyOwner {
+        require(_user != address(0));
         lockUser[_user] = true;
         lockTime[_user] = _time;
     }
 
+    /**
+     * @dev Check if the address is unlocked. Requires the contract to be finalized
+     * @param _user The address to be queried
+     */
     function isUnlocked(address _user) public view returns (bool) {
         return finalTime != 0 && (!lockUser[_user] == true || now >= finalTime.add(lockTime[_user]));
     }
