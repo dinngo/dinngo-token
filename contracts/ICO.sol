@@ -212,16 +212,28 @@ contract Whitelist is Ownable {
         _;
     }
 
+    /**
+     * @dev Add the Given address to the whitelist
+     * @param _user The address to be added
+     */
     function addToWhitelist(address _user) public onlyOwner whenNotWhitelisted(_user) {
         _data[_user] = true;
         emit AddedToWhitelist(_user);
     }
 
+    /**
+     * @dev Assign the given address as not whitelisted
+     * @param _user The address to be assigned
+     */
     function removeFromWhitelist(address _user) public onlyOwner whenWhitelisted(_user) {
         _data[_user] = false;
         emit RemovedFromWhitelist(_user);
     }
 
+    /**
+     * @dev Check if the address is whitelisted
+     * @param _user The address to be checked
+     */
     function isWhitelisted(address _user) public view returns (bool) {
         return _data[_user] == true;
     }
