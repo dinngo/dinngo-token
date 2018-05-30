@@ -1,4 +1,4 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.24;
 
 
 //////////////////
@@ -69,7 +69,7 @@ contract Ownable {
      * @dev The Ownable constructor sets the original `owner` of the contract to the sender
      * account.
      */
-    function Ownable() public {
+    constructor() public {
         owner = msg.sender;
     }
 
@@ -106,7 +106,7 @@ contract Timelock is Ownable {
 
     uint256 public finalTime;
 
-    function Timelock() public {
+    constructor() public {
         finalTime = 0;
     }
 
@@ -158,7 +158,7 @@ contract Pausable is Ownable {
 
     bool public paused;
 
-    function Pausable(bool _paused) public {
+    constructor(bool _paused) public {
         paused = _paused;
     }
 
@@ -255,7 +255,7 @@ contract State is Ownable {
         return state == _state;
     }
 
-    function State() public {
+    constructor() public {
         state = States.Prepare;
     }
 
@@ -509,7 +509,7 @@ contract CustomToken is TimelockToken, PausableToken {
     uint8 constant public decimals = 18;
     string constant public version = "1.0";
 
-    function CustomToken(address customWallet) public
+    constructor(address customWallet) public
         TimelockToken(customWallet)
         Pausable(false)
     {
@@ -566,7 +566,7 @@ contract Crowdsale {
     * @param _rate Number of token units a buyer gets per wei
     * @param _wallet Address where collected funds will be forwarded to
      */
-    function Crowdsale(uint256 _rate, address _wallet) public {
+    constructor(uint256 _rate, address _wallet) public {
         require(_rate > 0);
         require(_wallet != address(0));
 
@@ -735,17 +735,17 @@ contract CappedCrowdsale is Ownable, Crowdsale {
     using SafeMath for uint256;
 
     uint256 minCap;
-    uint256 maxCap;
+    // uint256 maxCap;
 
     modifier whenGreaterThan(uint256 _value) {
         require(_value >= minCap);
         _;
     }
 
-    modifier whenLessThan(uint256 _value) {
-        require(_value <= maxCap);
-        _;
-    }
+    // modifier whenLessThan(uint256 _value) {
+    //    require(_value <= maxCap);
+    //    _;
+    // }
 
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal whenGreaterThan(_weiAmount) {
         super._preValidatePurchase(_beneficiary, _weiAmount);
@@ -760,6 +760,10 @@ contract PausableCrowdsale is Pausable, Crowdsale {
 }
 
 
+/**
+ * @title CustomCrowdsale
+ * @dev The customized crowdsale contract
+ */
 contract CustomCrowdsale is
     WhitelistedCrowdsale,
     StatedCrowdsale,
@@ -771,7 +775,7 @@ contract CustomCrowdsale is
 
     address public tokenWallet;
 
-    function CustomCrowdsale(uint256 _rate, address _tokenWallet, address _fundsWallet) public
+    constructor(uint256 _rate, address _tokenWallet, address _fundsWallet) public
         Pausable(false)
         Crowdsale(_rate, _fundsWallet)
     {
@@ -781,26 +785,50 @@ contract CustomCrowdsale is
         minCap = 0.1 ether;
     }
 
+    /**
+     * @dev Change the rate of purchasing of DGO/ETH
+     * @param _rate The rate to be assigned
+     */
     function changeRate(uint256 _rate) public onlyOwner {
         emit RateChanged(rate, _rate);
         rate = _rate;
     }
 
+    /**
+     * @dev Change the address of token wallet
+     * @param _wallet The wallet address to be assigned
+     */
     function changeTokenWallet(address _wallet) public onlyOwner {
-        emit TokenWalletChanged(tokenWallet, _wallet);
+        token.removeFromWhitelist(tokenWallet);
         tokenWallet = _wallet;
+        token.addToWhitelist(tokenWallet);
+        emit TokenWalletChanged(tokenWallet, _wallet);
     }
 
+    /**
+     * @dev Change the address of receiving Eth
+     * @param _wallet The wallet address to be assigned
+     */
     function changeFundsWallet(address _wallet) public onlyOwner {
-        emit FundsWalletChanged(wallet, _wallet);
         wallet = _wallet;
+        emit FundsWalletChanged(wallet, _wallet);
     }
 
+    /**
+     * @dev Add the address to the purchase whitelist with timelock
+     * @param _user The address to be added to whitelist
+     * @param _time The length of time to be locked
+     */
     function addToWhitelistWithTime(address _user, uint256 _time) public onlyOwner {
         addToWhitelist(_user);
         token.setTimelock(_user, _time);
     }
 
+    /**
+     * @dev Add many addresses to the purchase whitelist with the same timelock
+     * @param _users The addresses to be added to whitelist
+     * @param _time The length of time to be locked
+     */
     function allowManyToWhitelistWithTime(address[] _users, uint256 _time) public onlyOwner {
         for (uint256 i = 0; i < _users.length; i++) {
             addToWhitelist(_users[i]);
@@ -808,6 +836,12 @@ contract CustomCrowdsale is
         }
     }
 
+    /**
+     * @dev Transfer the presale token to wallet and assign timelock
+     * @param _beneficiary The address to be given
+     * @param _tokenAmount The token amount to be given
+     * @param _time The length of time t=to be locked
+     */
     function presale(address _beneficiary, uint256 _tokenAmount, uint256 _time) public onlyOwner {
         _deliverTokens(_beneficiary, _tokenAmount);
         token.setTimelock(_beneficiary, _time);
