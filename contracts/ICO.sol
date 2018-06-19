@@ -513,6 +513,7 @@ contract CustomToken is TimelockToken, PausableToken {
         TimelockToken(customWallet)
         Pausable(false)
     {
+        require(customWallet != address(0));
         totalSupply_ = 2 * 10 ** (8 + uint256(decimals));
         balances[customWallet] = totalSupply_;
     }
@@ -779,6 +780,8 @@ contract CustomCrowdsale is
         Pausable(false)
         Crowdsale(_rate, _fundsWallet)
     {
+        require(_tokenWallet != address(0));
+        require(_fundsWallet != address(0));
         tokenWallet = _tokenWallet;
         token = new CustomToken(_tokenWallet);
         token.addToWhitelist(address(this));
@@ -799,6 +802,7 @@ contract CustomCrowdsale is
      * @param _wallet The wallet address to be assigned
      */
     function changeTokenWallet(address _wallet) public onlyOwner {
+        require(_wallet != address(0));
         token.removeFromWhitelist(tokenWallet);
         tokenWallet = _wallet;
         token.addToWhitelist(tokenWallet);
@@ -810,6 +814,7 @@ contract CustomCrowdsale is
      * @param _wallet The wallet address to be assigned
      */
     function changeFundsWallet(address _wallet) public onlyOwner {
+        require(_wallet != address(0));
         wallet = _wallet;
         emit FundsWalletChanged(wallet, _wallet);
     }
@@ -820,6 +825,7 @@ contract CustomCrowdsale is
      * @param _time The length of time to be locked
      */
     function addToWhitelistWithTime(address _user, uint256 _time) public onlyOwner {
+        require(_user != address(0));
         addToWhitelist(_user);
         token.setTimelock(_user, _time);
     }
@@ -831,6 +837,7 @@ contract CustomCrowdsale is
      */
     function allowManyToWhitelistWithTime(address[] _users, uint256 _time) public onlyOwner {
         for (uint256 i = 0; i < _users.length; i++) {
+            require(_users[i] != address(0));
             addToWhitelist(_users[i]);
             token.setTimelock(_users[i], _time);
         }
@@ -843,6 +850,7 @@ contract CustomCrowdsale is
      * @param _time The length of time t=to be locked
      */
     function presale(address _beneficiary, uint256 _tokenAmount, uint256 _time) public onlyOwner {
+        require(_beneficiary != address(0));
         _deliverTokens(_beneficiary, _tokenAmount);
         token.setTimelock(_beneficiary, _time);
     }
