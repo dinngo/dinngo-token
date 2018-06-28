@@ -524,10 +524,10 @@ contract PausableToken is Pausable, StandardToken {
 
 
 /**
- * @title CustomToken
- * @dev The customized token contract
+ * @title DinngoToken
+ * @dev Dinngo token contract
  */
-contract CustomToken is TimelockToken, PausableToken {
+contract DinngoToken is TimelockToken, PausableToken {
     string constant public name = "Dinngo";
     string constant public symbol = "DGO";
     uint8 constant public decimals = 18;
@@ -568,7 +568,7 @@ contract Crowdsale {
     using SafeMath for uint256;
 
     // The token being sold
-    CustomToken public token;
+    DinngoToken public token;
 
     // Address where funds are collected
     address public wallet;
@@ -787,10 +787,10 @@ contract PausableCrowdsale is Pausable, Crowdsale {
 
 
 /**
- * @title CustomCrowdsale
- * @dev The customized crowdsale contract
+ * @title DinngoCrowdsale
+ * @dev Dinngo crowdsale contract
  */
-contract CustomCrowdsale is
+contract DinngoCrowdsale is
     WhitelistedCrowdsale,
     StatedCrowdsale,
     PausableCrowdsale,
@@ -808,7 +808,7 @@ contract CustomCrowdsale is
         require(_tokenWallet != address(0));
         require(_fundsWallet != address(0));
         tokenWallet = _tokenWallet;
-        token = new CustomToken(_tokenWallet);
+        token = new DinngoToken(_tokenWallet);
         token.addToWhitelist(address(this));
         minCap = 0.1 ether;
     }
