@@ -540,6 +540,7 @@ contract CustomToken is TimelockToken, PausableToken {
         require(customWallet != address(0));
         totalSupply_ = 2 * 10 ** (8 + uint256(decimals));
         balances[customWallet] = totalSupply_;
+        emit Transfer(address(0), customWallet, totalSupply_);
     }
 
     function () public payable {
