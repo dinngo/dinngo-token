@@ -634,10 +634,7 @@ contract Crowdsale {
             tokens
         );
 
-        _updatePurchasingState(_beneficiary, weiAmount);
-
         _forwardFunds();
-        _postValidatePurchase(_beneficiary, weiAmount);
     }
 
     // -----------------------------------------
@@ -652,15 +649,6 @@ contract Crowdsale {
     function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
         require(_beneficiary != address(0));
         require(_weiAmount != 0);
-    }
-
-    /**
-     * @dev Validation of an executed purchase. Observe state and use revert statements to undo rollback when valid conditions are not met.
-     * @param _beneficiary Address performing the token purchase
-     * @param _weiAmount Value in wei involved in the purchase
-     */
-    function _postValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
-        // optional override
     }
 
     /**
@@ -679,15 +667,6 @@ contract Crowdsale {
      */
     function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
         _deliverTokens(_beneficiary, _tokenAmount);
-    }
-
-    /**
-     * @dev Override for extensions that require an internal state to check for validity (current user contributions, etc.)
-     * @param _beneficiary Address receiving the tokens
-     * @param _weiAmount Value in wei involved in the purchase
-     */
-    function _updatePurchasingState(address _beneficiary, uint256 _weiAmount) internal {
-        // optional override
     }
 
     /**
