@@ -98,52 +98,31 @@ contract Ownable {
  * @title Timelock
  * @dev Manage the time lock of token
  */
-contract Timelock is Ownable {
-    using SafeMath for uint256;
+contract Lock is Ownable {
+    event LockToken();
+    event UnlockToken();
 
-    mapping (address => bool) lockUser;
-    mapping (address => uint256) lockTime;
-
-    uint256 public finalTime;
+    bool public locked;
 
     constructor() public {
-        finalTime = 0;
+        locked = true;
+        emit LockToken();
     }
 
     /**
-     * @dev Record the finalized time as the reference of time lock.
+     * @notice Unlock the contract
      */
-    function finalize() public {
-        require(finalTime == 0);
-        finalTime = now;
+    function unlock() external onlyOwner {
+        require(locked);
+        locked = false;
+        emit UnlockToken();
     }
 
     /**
-     * @dev Return the time to be locked of the given address
-     * @param _user The address of the user to be queried
+     * @dev Check if the address is unlocked.
      */
-    function getTimelock(address _user) public view returns (uint256) {
-        require(lockUser[_user]);
-        return lockTime[_user];
-    }
-
-    /**
-     * @dev Set the given address as locked and assign the time
-     * @param _user The address to be locked
-     * @param _time The time length to be locked
-     */
-    function setTimelock(address _user, uint256 _time) public onlyOwner {
-        require(_user != address(0));
-        lockUser[_user] = true;
-        lockTime[_user] = _time;
-    }
-
-    /**
-     * @dev Check if the address is unlocked. Requires the contract to be finalized
-     * @param _user The address to be queried
-     */
-    function isUnlocked(address _user) public view returns (bool) {
-        return finalTime != 0 && (!lockUser[_user] == true || now >= finalTime.add(lockTime[_user]));
+    function isUnlocked() public view returns (bool) {
+        return !locked;
     }
 }
 
@@ -454,10 +433,10 @@ contract StandardToken is ERC20, BasicToken {
 ///////////////////////
 
 /**
- * @title TimelockToken
+ * @title LockableToken
  * @dev Manage the transfer ability of address with whitelist and timelock
  */
-contract TimelockToken is Whitelist, Timelock, StandardToken {
+contract LockableToken is Lock, Whitelist, StandardToken {
 
     constructor(address _address) public {
         require(_address != address(0));
@@ -469,7 +448,7 @@ contract TimelockToken is Whitelist, Timelock, StandardToken {
      */
     modifier whenTransferrable() {
         if (whitelist[msg.sender] != true)
-            require(isUnlocked(msg.sender));
+            require(isUnlocked());
         _;
     }
 
@@ -527,14 +506,14 @@ contract PausableToken is Pausable, StandardToken {
  * @title DinngoToken
  * @dev Dinngo token contract
  */
-contract DinngoToken is TimelockToken, PausableToken {
+contract DinngoToken is LockableToken, PausableToken {
     string constant public name = "Dinngo";
     string constant public symbol = "DGO";
     uint8 constant public decimals = 18;
     string constant public version = "1.0";
 
     constructor(address customWallet) public
-        TimelockToken(customWallet)
+        LockableToken(customWallet)
         Pausable(false)
     {
         require(customWallet != address(0));
@@ -719,7 +698,6 @@ contract StatedCrowdsale is State, Crowdsale {
 
     function finalize() public onlyOwner {
         super.finalize();
-        token.finalize();
         token.transferOwnership(msg.sender);
     }
 
@@ -824,39 +802,13 @@ contract DinngoCrowdsale is
     }
 
     /**
-     * @dev Add the address to the purchase whitelist with timelock
-     * @param _user The address to be added to whitelist
-     * @param _time The length of time to be locked
-     */
-    function addToWhitelistWithTime(address _user, uint256 _time) public onlyOwner {
-        require(_user != address(0));
-        addToWhitelist(_user);
-        token.setTimelock(_user, _time);
-    }
-
-    /**
-     * @dev Add many addresses to the purchase whitelist with the same timelock
-     * @param _users The addresses to be added to whitelist
-     * @param _time The length of time to be locked
-     */
-    function allowManyToWhitelistWithTime(address[] _users, uint256 _time) public onlyOwner {
-        for (uint256 i = 0; i < _users.length; i++) {
-            require(_users[i] != address(0));
-            addToWhitelist(_users[i]);
-            token.setTimelock(_users[i], _time);
-        }
-    }
-
-    /**
      * @dev Transfer the presale token to wallet and assign timelock
      * @param _beneficiary The address to be given
      * @param _tokenAmount The token amount to be given
-     * @param _time The length of time t=to be locked
      */
-    function presale(address _beneficiary, uint256 _tokenAmount, uint256 _time) public onlyOwner {
+    function presale(address _beneficiary, uint256 _tokenAmount) public onlyOwner {
         require(_beneficiary != address(0));
         _deliverTokens(_beneficiary, _tokenAmount);
-        token.setTimelock(_beneficiary, _time);
     }
 
     /**
