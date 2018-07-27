@@ -1,6 +1,6 @@
 pragma solidity ^0.4.23;
 
-import "../ICO.sol";
+import "../DinngoCrowdsale.sol";
 import "../token/ERC20/ERC20.sol";
 import "../math/SafeMath.sol";
 
