@@ -5,7 +5,7 @@ import "./crowdsale/lifecycle/PausableCrowdsale.sol";
 import "./crowdsale/lifecycle/StatefulCrowdsale.sol";
 import "./crowdsale/validation/CappedCrowdsale.sol";
 import "./crowdsale/validation/WhitelistedCrowdsale.sol";
-import "./DinngoToken.sol";
+import "./token/ERC20/ERC20.sol";
 
 
 /**
@@ -22,15 +22,13 @@ contract DinngoCrowdsale is
     event FundsWalletChanged(address indexed oldWallet, address indexed newWallet);
 
     address public tokenWallet;
-    DinngoToken public DGOToken;
 
-    constructor(DinngoToken _token, uint256 _rate, address _tokenWallet, address _fundsWallet) public
-        Crowdsale(_rate, _fundsWallet, ERC20(_token))
+    constructor(ERC20 _token, uint256 _rate, address _tokenWallet, address _fundsWallet) public
+        Crowdsale(_rate, _fundsWallet, _token)
     {
         require(_tokenWallet != address(0));
         require(_fundsWallet != address(0));
         tokenWallet = _tokenWallet;
-        DGOToken.addToWhitelist(address(this));
         minCap = 0.1 ether;
     }
 
