@@ -58,6 +58,7 @@ contract DinngoCrowdsale is
      */
     function presale(address _beneficiary, uint256 _tokenAmount) public onlyOwner {
         require(_beneficiary != address(0));
+        require(_tokenAmount != 0);
         _deliverTokens(_beneficiary, _tokenAmount);
     }
 
