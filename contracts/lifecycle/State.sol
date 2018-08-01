@@ -4,11 +4,6 @@ pragma solidity ^0.4.24;
 import "../ownership/Ownable.sol";
 
 
-////////////////////
-// Utilities section
-////////////////////
-
-
 /**
  * @title State
  * @dev Manage the state of crowdsale
@@ -46,7 +41,7 @@ contract State is Ownable {
     /**
      * @dev finalize the crowdsale
      */
-    function finalize() public onlyOwner{
+    function finalize() public onlyOwner {
         require(isState(States.InProgress));
         state = States.Finalized;
         emit Finalized(now);
