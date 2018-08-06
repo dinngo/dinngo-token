@@ -28,8 +28,13 @@ contract DinngoCompany is Ownable {
        startTime = now;
     }
 
+    function () public payable {
+        revert();
+    }
+
     /**
      * @notice Claim the available balance
+     * @param amount The amount to claim
      */
     function claim(uint256 amount) external {
         require(now > startTime.add(365 days));
@@ -41,6 +46,7 @@ contract DinngoCompany is Ownable {
 
     /**
      * @notice Change the wallet address
+     * @param _wallet The new wallet address
      */
     function changeWallet(address _wallet) external onlyOwner {
         emit ChangeWallet(wallet, _wallet);

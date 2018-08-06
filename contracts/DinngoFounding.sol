@@ -29,6 +29,10 @@ contract DinngoFounding is Ownable {
         token = _token;
     }
 
+    function () public payable {
+        revert();
+    }
+
     /**
      * @notice Add new recruits
      * @param user The user address of new recruit
@@ -53,6 +57,19 @@ contract DinngoFounding is Ownable {
     }
 
     /**
+     * @notice Claim the available balance
+     */
+    function claim() external {
+        require(totalAmount[msg.sender] > 0);
+        uint256 availableAmount = payableAmount(msg.sender).sub(claimedAmount[msg.sender]);
+        require(availableAmount > 0);
+
+        token.safeTransfer(msg.sender, availableAmount);
+        claimedAmount[msg.sender] = claimedAmount[msg.sender].add(availableAmount);
+        emit Claim(msg.sender, availableAmount);
+    }
+
+    /**
      * @notice Calculate the given user's payable amount base on the time interval.
      * The first payable time is after 1 year for 25% of total amount. After that,
      * pay every 90 days for 25% * 25% of total amount.
@@ -69,18 +86,5 @@ contract DinngoFounding is Ownable {
         uint256 payableTime = interval.div(90 days);
         payableTime = payableTime > 16 ? 16 : payableTime;
         ret = payableUnit.mul(payableTime);
-    }
-
-    /**
-     * @notice Claim the available balance
-     */
-    function claim() external {
-        require(totalAmount[msg.sender] > 0);
-        uint256 availableAmount = payableAmount(msg.sender).sub(claimedAmount[msg.sender]);
-        require(availableAmount > 0);
-
-        token.safeTransfer(msg.sender, availableAmount);
-        claimedAmount[msg.sender] = claimedAmount[msg.sender].add(availableAmount);
-        emit Claim(msg.sender, availableAmount);
     }
 }
