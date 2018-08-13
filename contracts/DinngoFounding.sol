@@ -78,12 +78,15 @@ contract DinngoFounding is Ownable {
      */
     function payableAmount(address user) public view returns (uint256 ret) {
         uint256 payableUnit = totalAmount[user].div(16);
+        uint256 payableTime;
         uint256 interval = now.sub(startTime[user]);
-        if (interval < 366 days) {
+        if (interval < 365 days) {
             ret = 0;
             return;
+        } else {
+            payableTime = 4;
         }
-        uint256 payableTime = interval.div(90 days);
+        payableTime = payableTime.add(interval.sub(365 days).div(90 days));
         payableTime = payableTime > 16 ? 16 : payableTime;
         ret = payableUnit.mul(payableTime);
     }
