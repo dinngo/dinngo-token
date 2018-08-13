@@ -3,20 +3,8 @@ module.exports = {
         development: {
             host: "127.0.0.1",
             port: 8545,
-            network_id: "*"
-        },
-        live: {
-            network_id: 1,
-            host: "localhost",
-            port: 8545,
+            network_id: "*",
             gas: 4700000
-        },
-        ropsten: {
-            network_id: 3,
-            host: "localhost",
-            port: 8545,
-            gas: 4700000,
-            gasPrice: 22000000000
         }
     },
     rpc: {
