@@ -35,6 +35,16 @@ contract Whitelist is Ownable {
     }
 
     /**
+     * @dev Add the Given addresses to the whitelist
+     * @param _users The addresses to be added
+     */
+    function addManyToWhitelist(address[] _users) public onlyOwner {
+        for (uint256 i = 0; i < _users.length; i++) {
+            addToWhitelist(_users[i]);
+        }
+    }
+
+    /**
      * @dev Assign the given address as not whitelisted
      * @param _user The address to be assigned
      */
